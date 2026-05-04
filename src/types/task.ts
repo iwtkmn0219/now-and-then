@@ -1,0 +1,18 @@
+export interface Task {
+  id: string
+  title: string
+  is_completed: boolean
+  target_date: string | null
+  created_at: string
+}
+
+export interface NewTask {
+  title: string
+  target_date: string | null
+}
+
+export interface UpdateTask {
+  title?: string
+  is_completed?: boolean
+  target_date?: string | null
+}
