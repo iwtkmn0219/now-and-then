@@ -39,6 +39,14 @@ export default function Calendar({ selectedDate, onChange, taskCountByDate = {} 
   const selected = parseISO(selectedDate);
   const [viewMonth, setViewMonth] = useState(() => startOfMonth(selected));
 
+  const todayStr = format(new Date(), 'yyyy-MM-dd');
+  const isAlreadyToday = selectedDate === todayStr;
+
+  const goToToday = () => {
+    setViewMonth(startOfMonth(new Date()));
+    onChange(todayStr);
+  };
+
   const days = eachDayOfInterval({
     start: startOfMonth(viewMonth),
     end: endOfMonth(viewMonth),
@@ -62,14 +70,24 @@ export default function Calendar({ selectedDate, onChange, taskCountByDate = {} 
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={() => setViewMonth((m) => subMonths(m, 1))}
-          className="text-gray-400 hover:text-[#1A1A1A] transition-colors text-lg leading-none"
+          className="text-gray-400 hover:text-[#1A1A1A] transition-colors text-lg leading-none cursor-pointer"
         >
           ←
         </button>
-        <div />
+        <button
+          onClick={goToToday}
+          disabled={isAlreadyToday}
+          className={`text-base tracking-widest uppercase transition-colors ${
+            isAlreadyToday
+              ? 'text-gray-300 cursor-default'
+              : 'text-[#1A1A1A] hover:text-gray-400 cursor-pointer'
+          }`}
+        >
+          today
+        </button>
         <button
           onClick={() => setViewMonth((m) => addMonths(m, 1))}
-          className="text-gray-400 hover:text-[#1A1A1A] transition-colors text-lg leading-none"
+          className="text-gray-400 hover:text-[#1A1A1A] transition-colors text-lg leading-none cursor-pointer"
         >
           →
         </button>
@@ -100,7 +118,7 @@ export default function Calendar({ selectedDate, onChange, taskCountByDate = {} 
               key={dateStr}
               onClick={() => onChange(dateStr)}
               className={`
-                aspect-square relative flex items-center justify-center text-sm transition-colors
+                aspect-square relative flex items-center justify-center text-sm transition-colors cursor-pointer
                 ${isSelected
                   ? 'bg-[#1A1A1A] text-[#F5F0E8]'
                   : today
