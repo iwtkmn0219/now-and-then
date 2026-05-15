@@ -29,7 +29,7 @@ export default function TaskInput({ onAdd, placeholder = '할 일을 입력하�
       />
       <button
         type="submit"
-        className="font-mono text-sm px-3 py-1 border border-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-[#F5F0E8] transition-colors"
+        className="font-mono text-sm w-8 h-8 bg-[#1A1A1A] text-[#F5F0E8] hover:bg-[#3a3a3a] transition-colors cursor-pointer flex-shrink-0 flex items-center justify-center"
       >
         +
       </button>
