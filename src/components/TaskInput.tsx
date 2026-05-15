@@ -25,7 +25,7 @@ export default function TaskInput({ onAdd, placeholder = '할 일을 입력하�
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder={placeholder}
-        className="flex-1 font-mono text-sm bg-transparent border-b border-gray-300 focus:border-[#1A1A1A] focus:outline-none py-1 placeholder:text-gray-300"
+        className="flex-1 font-mono text-sm bg-transparent border-b border-gray-400 focus:border-[#1A1A1A] focus:outline-none py-1 placeholder:text-gray-500"
       />
       <button
         type="submit"

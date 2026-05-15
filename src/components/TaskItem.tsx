@@ -22,7 +22,7 @@ export default function TaskItem({ task, onUpdate, onDelete, showDatePicker = fa
   };
 
   return (
-    <li className="flex items-center gap-3 py-2 group border-b border-gray-100 last:border-0">
+    <li className="flex items-center gap-3 py-2 group border-b border-gray-300 last:border-0">
       <input
         type="checkbox"
         checked={task.is_completed}
@@ -31,7 +31,7 @@ export default function TaskItem({ task, onUpdate, onDelete, showDatePicker = fa
       />
       <span
         className={`flex-1 font-mono text-sm ${
-          task.is_completed ? 'line-through text-gray-400' : 'text-[#1A1A1A]'
+          task.is_completed ? 'line-through text-gray-500' : 'text-[#1A1A1A]'
         }`}
       >
         {task.title}
@@ -45,12 +45,12 @@ export default function TaskItem({ task, onUpdate, onDelete, showDatePicker = fa
               autoFocus
               onChange={handleDateSelect}
               onBlur={() => setIsPickingDate(false)}
-              className="font-mono text-xs bg-transparent border-b border-gray-400 focus:outline-none"
+              className="font-mono text-xs bg-transparent border-b border-gray-500 focus:outline-none"
             />
           ) : (
             <button
               onClick={() => setIsPickingDate(true)}
-              className="font-mono text-xs text-gray-400 hover:text-[#1A1A1A] opacity-0 group-hover:opacity-100 transition-opacity border border-gray-300 hover:border-[#1A1A1A] px-2 py-0.5"
+              className="font-mono text-xs text-gray-600 hover:text-[#1A1A1A] opacity-0 group-hover:opacity-100 transition-opacity border border-gray-400 hover:border-[#1A1A1A] px-2 py-0.5 cursor-pointer"
             >
               날짜 지정
             </button>
@@ -60,7 +60,7 @@ export default function TaskItem({ task, onUpdate, onDelete, showDatePicker = fa
 
       <button
         onClick={() => onDelete(task.id)}
-        className="font-mono text-xs text-gray-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1"
+        className="font-mono text-xs text-gray-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity ml-1 cursor-pointer"
       >
         ✕
       </button>

@@ -26,7 +26,7 @@ export default function TaskList({
   return (
     <div>
       {tasks.length === 0 ? (
-        <p className="font-mono text-sm text-gray-400 py-4">{emptyMessage}</p>
+        <p className="font-mono text-sm text-gray-600 py-4">{emptyMessage}</p>
       ) : (
         <ul>
           {tasks.map((task) => (

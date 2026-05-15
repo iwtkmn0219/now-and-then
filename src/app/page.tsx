@@ -46,10 +46,10 @@ export default function Home() {
         <section className="flex-1 p-10 overflow-y-auto">
           <div className="mb-8">
             <h2 className="text-xs uppercase tracking-widest text-[#1A1A1A] font-bold">Now</h2>
-            <p className="text-xs text-gray-400 mt-1">{formattedDate}</p>
+            <p className="text-xs text-gray-600 mt-1">{formattedDate}</p>
           </div>
           {loading ? (
-            <p className="text-sm text-gray-400">불러오는 중...</p>
+            <p className="text-sm text-gray-600">불러오는 중...</p>
           ) : (
             <TaskList
               tasks={nowTasks}
@@ -66,10 +66,10 @@ export default function Home() {
         <section className="flex-1 p-10 overflow-y-auto">
           <div className="mb-8">
             <h2 className="text-xs uppercase tracking-widest text-[#6B7280] font-bold">Then</h2>
-            <p className="text-xs text-gray-400 mt-1">날짜가 정해지지 않은 아이디어</p>
+            <p className="text-xs text-gray-600 mt-1">날짜가 정해지지 않은 아이디어</p>
           </div>
           {loading ? (
-            <p className="text-sm text-gray-400">불러오는 중...</p>
+            <p className="text-sm text-gray-600">불러오는 중...</p>
           ) : (
             <TaskList
               tasks={thenTasks}
