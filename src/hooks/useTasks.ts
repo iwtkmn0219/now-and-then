@@ -7,6 +7,7 @@ import type { Task, NewTask, UpdateTask } from '@/types/task';
 export function useTasks(selectedDate: string) {
   const [nowTasks, setNowTasks] = useState<Task[]>([]);
   const [thenTasks, setThenTasks] = useState<Task[]>([]);
+  const [taskCountByDate, setTaskCountByDate] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,6 +32,14 @@ export function useTasks(selectedDate: string) {
           .filter((t) => t.target_date === null)
           .sort((a, b) => b.created_at.localeCompare(a.created_at))
       );
+
+      const countMap: Record<string, number> = {};
+      tasks.forEach((t) => {
+        if (t.target_date) {
+          countMap[t.target_date] = (countMap[t.target_date] ?? 0) + 1;
+        }
+      });
+      setTaskCountByDate(countMap);
     } catch (err) {
       console.error('Failed to fetch tasks:', err);
       setError('할 일을 불러오는데 실패했어요.');
@@ -135,5 +144,5 @@ export function useTasks(selectedDate: string) {
     }
   };
 
-  return { nowTasks, thenTasks, loading, error, addTask, updateTask, deleteTask };
+  return { nowTasks, thenTasks, taskCountByDate, loading, error, addTask, updateTask, deleteTask };
 }
