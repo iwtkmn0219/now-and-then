@@ -48,17 +48,25 @@ export default function Calendar({ selectedDate, onChange, taskCountByDate = {} 
 
   return (
     <div className="font-mono select-none">
+      {/* Month heading */}
+      <div className="mb-4">
+        <p className="text-4xl font-bold tracking-tight text-[#1A1A1A]">
+          {format(viewMonth, 'M월', { locale: ko })}
+        </p>
+        <p className="text-xs text-gray-400 mt-1 tracking-widest">
+          {format(viewMonth, 'yyyy', { locale: ko })}
+        </p>
+      </div>
+
       {/* Month navigation */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <button
           onClick={() => setViewMonth((m) => subMonths(m, 1))}
           className="text-gray-400 hover:text-[#1A1A1A] transition-colors text-lg leading-none"
         >
           ←
         </button>
-        <span className="text-sm font-bold tracking-widest">
-          {format(viewMonth, 'yyyy. MM', { locale: ko })}
-        </span>
+        <div />
         <button
           onClick={() => setViewMonth((m) => addMonths(m, 1))}
           className="text-gray-400 hover:text-[#1A1A1A] transition-colors text-lg leading-none"
