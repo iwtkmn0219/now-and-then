@@ -138,7 +138,7 @@ export default function Home() {
           </section>
 
           {/* Center: Now */}
-          <section className="w-[27%] p-10 overflow-y-auto">
+          <section className="w-[27%] p-10 overflow-y-auto themed-scroll">
             <div className="mb-8">
               <h2 className="text-xs uppercase tracking-widest text-[#1A1A1A] font-bold">Now</h2>
               <p className="text-xs text-gray-600 mt-1">{formattedDate}</p>
@@ -159,7 +159,7 @@ export default function Home() {
           </section>
 
           {/* Right: Then */}
-          <section className="w-[27%] p-10 overflow-y-auto">
+          <section className="w-[27%] p-10 overflow-y-auto themed-scroll">
             <div className="mb-8">
               <h2 className="text-xs uppercase tracking-widest text-[#6B7280] font-bold">Then</h2>
               <p className="text-xs text-gray-600 mt-1">날짜가 정해지지 않은 아이디어</p>
