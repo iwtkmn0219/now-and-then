@@ -13,6 +13,7 @@ import {
 import { arrayMove } from '@dnd-kit/sortable';
 import Calendar from '@/components/Calendar';
 import TaskList from '@/components/TaskList';
+import ScrollableSection from '@/components/ScrollableSection';
 import { useTasks } from '@/hooks/useTasks';
 import type { Task } from '@/types/task';
 
@@ -138,47 +139,51 @@ export default function Home() {
           </section>
 
           {/* Center: Now */}
-          <section className="w-[27%] p-10 overflow-y-auto themed-scroll">
-            <div className="mb-6 pb-4 border-b border-[#1A1A1A]/10">
-              <h2 className="text-xs uppercase tracking-widest text-[#1A1A1A] font-bold">Now</h2>
-              <p className="text-xs text-[#1A1A1A]/40 mt-1">{formattedDate}</p>
+          <ScrollableSection className="w-[27%]">
+            <div className="p-10">
+              <div className="mb-6 pb-4 border-b border-[#1A1A1A]/10">
+                <h2 className="text-xs uppercase tracking-widest text-[#1A1A1A] font-bold">Now</h2>
+                <p className="text-xs text-[#1A1A1A]/40 mt-1">{formattedDate}</p>
+              </div>
+              {loading ? (
+                <p className="text-sm text-[#1A1A1A]/40">불러오는 중...</p>
+              ) : (
+                <TaskList
+                  tasks={nowTasks}
+                  onAdd={handleAddNow}
+                  onUpdate={updateTask}
+                  onDelete={deleteTask}
+                  emptyMessage="오늘 할 일이 없어요. Then에서 날짜를 지정해보세요."
+                  inputPlaceholder="할 일을 추가하세요..."
+                  sectionId="now"
+                />
+              )}
             </div>
-            {loading ? (
-              <p className="text-sm text-[#1A1A1A]/40">불러오는 중...</p>
-            ) : (
-              <TaskList
-                tasks={nowTasks}
-                onAdd={handleAddNow}
-                onUpdate={updateTask}
-                onDelete={deleteTask}
-                emptyMessage="오늘 할 일이 없어요. Then에서 날짜를 지정해보세요."
-                inputPlaceholder="할 일을 추가하세요..."
-                sectionId="now"
-              />
-            )}
-          </section>
+          </ScrollableSection>
 
           {/* Right: Then */}
-          <section className="w-[27%] p-10 overflow-y-auto themed-scroll">
-            <div className="mb-6 pb-4 border-b border-[#1A1A1A]/10">
-              <h2 className="text-xs uppercase tracking-widest text-[#6B7280] font-bold">Then</h2>
-              <p className="text-xs text-[#1A1A1A]/40 mt-1">날짜가 정해지지 않은 아이디어</p>
+          <ScrollableSection className="w-[27%]">
+            <div className="p-10">
+              <div className="mb-6 pb-4 border-b border-[#1A1A1A]/10">
+                <h2 className="text-xs uppercase tracking-widest text-[#6B7280] font-bold">Then</h2>
+                <p className="text-xs text-[#1A1A1A]/40 mt-1">날짜가 정해지지 않은 아이디어</p>
+              </div>
+              {loading ? (
+                <p className="text-sm text-[#1A1A1A]/40">불러오는 중...</p>
+              ) : (
+                <TaskList
+                  tasks={thenTasks}
+                  onAdd={handleAddThen}
+                  onUpdate={updateTask}
+                  onDelete={deleteTask}
+                  emptyMessage="보관된 아이디어가 없어요. 자유롭게 추가해보세요."
+                  showDatePicker
+                  inputPlaceholder="아이디어를 추가하세요..."
+                  sectionId="then"
+                />
+              )}
             </div>
-            {loading ? (
-              <p className="text-sm text-[#1A1A1A]/40">불러오는 중...</p>
-            ) : (
-              <TaskList
-                tasks={thenTasks}
-                onAdd={handleAddThen}
-                onUpdate={updateTask}
-                onDelete={deleteTask}
-                emptyMessage="보관된 아이디어가 없어요. 자유롭게 추가해보세요."
-                showDatePicker
-                inputPlaceholder="아이디어를 추가하세요..."
-                sectionId="then"
-              />
-            )}
-          </section>
+          </ScrollableSection>
 
         </div>
       </DndContext>
