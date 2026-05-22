@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import type { Task, NewTask, UpdateTask } from '@/types/task';
+import type { Task, NewTask, UpdateTask, DateTaskCount } from '@/types/task';
 
 export function useTasks(selectedDate: string) {
   const [nowTasks, setNowTasks] = useState<Task[]>([]);
   const [thenTasks, setThenTasks] = useState<Task[]>([]);
   const [allPositions, setAllPositions] = useState<number[]>([]);
-  const [taskCountByDate, setTaskCountByDate] = useState<Record<string, number>>({});
+  const [taskCountByDate, setTaskCountByDate] = useState<Record<string, DateTaskCount>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,10 +35,13 @@ export function useTasks(selectedDate: string) {
       );
       setAllPositions(tasks.map((t) => t.position));
 
-      const countMap: Record<string, number> = {};
+      const countMap: Record<string, DateTaskCount> = {};
       tasks.forEach((t) => {
         if (t.target_date) {
-          countMap[t.target_date] = (countMap[t.target_date] ?? 0) + 1;
+          const prev = countMap[t.target_date] ?? { active: 0, completed: 0 };
+          countMap[t.target_date] = t.is_completed
+            ? { ...prev, completed: prev.completed + 1 }
+            : { ...prev, active: prev.active + 1 };
         }
       });
       setTaskCountByDate(countMap);
@@ -76,10 +79,10 @@ export function useTasks(selectedDate: string) {
       setAllPositions((prev) => [...prev, task.position]);
 
       if (task.target_date) {
-        setTaskCountByDate((prev) => ({
-          ...prev,
-          [task.target_date!]: (prev[task.target_date!] ?? 0) + 1,
-        }));
+        setTaskCountByDate((prev) => {
+          const existing = prev[task.target_date!] ?? { active: 0, completed: 0 };
+          return { ...prev, [task.target_date!]: { ...existing, active: existing.active + 1 } };
+        });
       }
     } catch (err) {
       console.error('Failed to add task:', err);
@@ -92,21 +95,36 @@ export function useTasks(selectedDate: string) {
     const prevThen = thenTasks;
     const prevCountByDate = taskCountByDate;
 
+    const existing = [...nowTasks, ...thenTasks].find((t) => t.id === id);
+
+    if ('is_completed' in updates && existing?.target_date) {
+      const date = existing.target_date;
+      const becomingCompleted = updates.is_completed!;
+      setTaskCountByDate((prev) => {
+        const old = prev[date] ?? { active: 0, completed: 0 };
+        return becomingCompleted
+          ? { ...prev, [date]: { active: Math.max(0, old.active - 1), completed: old.completed + 1 } }
+          : { ...prev, [date]: { active: old.active + 1, completed: Math.max(0, old.completed - 1) } };
+      });
+    }
+
     if ('target_date' in updates) {
-      const existing = [...nowTasks, ...thenTasks].find((t) => t.id === id);
       const oldDate = existing?.target_date ?? null;
       const newDate = updates.target_date ?? null;
+      const field = existing?.is_completed ? 'completed' : 'active';
 
       if (oldDate !== newDate) {
         setTaskCountByDate((prev) => {
           const next = { ...prev };
           if (oldDate) {
-            const count = (next[oldDate] ?? 0) - 1;
-            if (count <= 0) delete next[oldDate];
-            else next[oldDate] = count;
+            const old = next[oldDate] ?? { active: 0, completed: 0 };
+            const updated = { ...old, [field]: Math.max(0, old[field] - 1) };
+            if (updated.active === 0 && updated.completed === 0) delete next[oldDate];
+            else next[oldDate] = updated;
           }
           if (newDate) {
-            next[newDate] = (next[newDate] ?? 0) + 1;
+            const old = next[newDate] ?? { active: 0, completed: 0 };
+            next[newDate] = { ...old, [field]: old[field] + 1 };
           }
           return next;
         });
@@ -172,11 +190,14 @@ export function useTasks(selectedDate: string) {
     setThenTasks((prev) => prev.filter((t) => t.id !== id));
 
     if (existing?.target_date) {
+      const date = existing.target_date;
+      const field = existing.is_completed ? 'completed' : 'active';
       setTaskCountByDate((prev) => {
         const next = { ...prev };
-        const count = (next[existing.target_date!] ?? 0) - 1;
-        if (count <= 0) delete next[existing.target_date!];
-        else next[existing.target_date!] = count;
+        const old = next[date] ?? { active: 0, completed: 0 };
+        const updated = { ...old, [field]: Math.max(0, old[field] - 1) };
+        if (updated.active === 0 && updated.completed === 0) delete next[date];
+        else next[date] = updated;
         return next;
       });
     }
@@ -232,15 +253,18 @@ export function useTasks(selectedDate: string) {
     });
 
     if (sectionChanged) {
+      const field = existing.is_completed ? 'completed' : 'active';
       setTaskCountByDate((prev) => {
         const next = { ...prev };
         if (oldDate) {
-          const count = (next[oldDate] ?? 0) - 1;
-          if (count <= 0) delete next[oldDate];
-          else next[oldDate] = count;
+          const old = next[oldDate] ?? { active: 0, completed: 0 };
+          const updated = { ...old, [field]: Math.max(0, old[field] - 1) };
+          if (updated.active === 0 && updated.completed === 0) delete next[oldDate];
+          else next[oldDate] = updated;
         }
         if (targetDate) {
-          next[targetDate] = (next[targetDate] ?? 0) + 1;
+          const old = next[targetDate] ?? { active: 0, completed: 0 };
+          next[targetDate] = { ...old, [field]: old[field] + 1 };
         }
         return next;
       });

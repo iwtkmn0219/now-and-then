@@ -18,3 +18,8 @@ export interface UpdateTask {
   target_date?: string | null
   position?: number
 }
+
+export interface DateTaskCount {
+  active: number
+  completed: number
+}

@@ -14,21 +14,57 @@ import {
   parseISO,
 } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import type { DateTaskCount } from '@/types/task';
 
 interface CalendarProps {
   selectedDate: string;
   onChange: (date: string) => void;
-  taskCountByDate?: Record<string, number>;
+  taskCountByDate?: Record<string, DateTaskCount>;
 }
 
-function TaskDots({ count, inverted }: { count: number; inverted: boolean }) {
-  const dots = Math.min(count, 3);
+function buildStairRows(count: number): number[] {
+  // [3,2,1] 삼각형을 대각선(↘) 순서로 채움: [1]→[2]→[2,1]→[3,1]→[3,2]→[3,2,1]
+  const MAX = [3, 2, 1];
+  const rows = [0, 0, 0];
+  let remaining = Math.min(count, 6);
+  for (let d = 0; d <= 2 && remaining > 0; d++) {
+    for (let r = 0; r <= d && remaining > 0; r++) {
+      const c = d - r;
+      if (r < 3 && c < MAX[r]) { rows[r]++; remaining--; }
+    }
+  }
+  return rows.filter(n => n > 0);
+}
+
+function TaskDots({ count, inverted, variant = 'active' }: {
+  count: number;
+  inverted: boolean;
+  variant?: 'active' | 'completed';
+}) {
   const color = inverted ? 'bg-[#F5F0E8]' : 'bg-[#1A1A1A]';
+  const textColor = inverted ? 'text-[#F5F0E8]' : 'text-[#1A1A1A]';
+
+  // active는 completed의 역순(bottom-right 기준 대칭)
+  const rows = variant === 'completed' ? buildStairRows(count) : [...buildStairRows(count)].reverse();
+  const overflow = count > 6;
+  const isActive = variant === 'active';
+
   return (
-    <span className="flex gap-[2px]">
-      {Array.from({ length: dots }).map((_, i) => (
-        <span key={i} className={`w-[3px] h-[3px] ${color}`} />
+    <span className={`flex flex-col gap-[2px] ${isActive ? 'items-end' : 'items-start'}`}>
+      {/* active: 숫자 위, completed: 숫자 아래 */}
+      {overflow && isActive && (
+        <span className={`font-mono text-[8px] leading-none mb-[3px] ${textColor}`}>{count}</span>
+      )}
+      {rows.map((n, rowIdx) => (
+        <span key={rowIdx} className="flex gap-[2px]">
+          {Array.from({ length: n }).map((_, i) => (
+            <span key={i} className={`w-[4px] h-[4px] flex-shrink-0 ${color}`} />
+          ))}
+        </span>
       ))}
+      {overflow && !isActive && (
+        <span className={`font-mono text-[8px] leading-none mt-[3px] ${textColor}`}>{count}</span>
+      )}
     </span>
   );
 }
@@ -114,7 +150,9 @@ export default function Calendar({ selectedDate, onChange, taskCountByDate = {} 
           const dateStr = format(day, 'yyyy-MM-dd');
           const isSelected = isSameDay(day, selected);
           const today = isToday(day);
-          const count = taskCountByDate[dateStr] ?? 0;
+          const counts = taskCountByDate[dateStr];
+          const activeCount = counts?.active ?? 0;
+          const completedCount = counts?.completed ?? 0;
 
           return (
             <button
@@ -131,9 +169,14 @@ export default function Calendar({ selectedDate, onChange, taskCountByDate = {} 
               `}
             >
               {format(day, 'd')}
-              {count > 0 && (
+              {completedCount > 0 && (
+                <span className="absolute top-[3px] left-[3px]">
+                  <TaskDots count={completedCount} inverted={isSelected} variant="completed" />
+                </span>
+              )}
+              {activeCount > 0 && (
                 <span className="absolute bottom-[3px] right-[3px]">
-                  <TaskDots count={count} inverted={isSelected} />
+                  <TaskDots count={activeCount} inverted={isSelected} />
                 </span>
               )}
             </button>
