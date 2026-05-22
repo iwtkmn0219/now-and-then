@@ -18,6 +18,7 @@ type RegularItem = {
   label: string;
   onClick: () => void;
   danger?: boolean;
+  type?: undefined;
 };
 
 type DatePickerItem = {
@@ -135,7 +136,7 @@ export default function ContextMenu({ x, y, items, onClose }: ContextMenuProps) 
         <MiniCalendar item={activeDateItem} onClose={onClose} />
       ) : (
         items.map((item, i) => {
-          if ('type' in item && item.type === 'date-picker') {
+          if (item.type === 'date-picker') {
             return (
               <button
                 key={i}

@@ -3,6 +3,7 @@ export interface Task {
   title: string
   is_completed: boolean
   target_date: string | null
+  position: number
   created_at: string
 }
 
@@ -15,4 +16,5 @@ export interface UpdateTask {
   title?: string
   is_completed?: boolean
   target_date?: string | null
+  position?: number
 }

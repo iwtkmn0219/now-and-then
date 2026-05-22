@@ -7,6 +7,7 @@ import type { Task, NewTask, UpdateTask } from '@/types/task';
 export function useTasks(selectedDate: string) {
   const [nowTasks, setNowTasks] = useState<Task[]>([]);
   const [thenTasks, setThenTasks] = useState<Task[]>([]);
+  const [allPositions, setAllPositions] = useState<number[]>([]);
   const [taskCountByDate, setTaskCountByDate] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,13 +26,14 @@ export function useTasks(selectedDate: string) {
       setNowTasks(
         tasks
           .filter((t) => t.target_date === selectedDate)
-          .sort((a, b) => a.created_at.localeCompare(b.created_at))
+          .sort((a, b) => a.position - b.position)
       );
       setThenTasks(
         tasks
           .filter((t) => t.target_date === null)
-          .sort((a, b) => b.created_at.localeCompare(a.created_at))
+          .sort((a, b) => b.position - a.position)
       );
+      setAllPositions(tasks.map((t) => t.position));
 
       const countMap: Record<string, number> = {};
       tasks.forEach((t) => {
@@ -54,9 +56,12 @@ export function useTasks(selectedDate: string) {
 
   const addTask = async (newTask: NewTask) => {
     try {
+      const maxPosition = allPositions.length > 0 ? Math.max(...allPositions) : 0;
+      const position = maxPosition + 1;
+
       const { data, error: insertError } = await supabase
         .from('tasks')
-        .insert([{ ...newTask, is_completed: false }])
+        .insert([{ ...newTask, is_completed: false, position }])
         .select()
         .single();
 
@@ -64,10 +69,11 @@ export function useTasks(selectedDate: string) {
 
       const task = data as Task;
       if (task.target_date === selectedDate) {
-        setNowTasks((prev) => [...prev, task]);
+        setNowTasks((prev) => [...prev, task].sort((a, b) => a.position - b.position));
       } else if (task.target_date === null) {
-        setThenTasks((prev) => [task, ...prev]);
+        setThenTasks((prev) => [task, ...prev].sort((a, b) => b.position - a.position));
       }
+      setAllPositions((prev) => [...prev, task.position]);
 
       if (task.target_date) {
         setTaskCountByDate((prev) => ({
@@ -86,7 +92,6 @@ export function useTasks(selectedDate: string) {
     const prevThen = thenTasks;
     const prevCountByDate = taskCountByDate;
 
-    // target_date 변경 시 taskCountByDate 즉시 반영
     if ('target_date' in updates) {
       const existing = [...nowTasks, ...thenTasks].find((t) => t.id === id);
       const oldDate = existing?.target_date ?? null;
@@ -108,16 +113,17 @@ export function useTasks(selectedDate: string) {
       }
     }
 
-    // Optimistic update
     setNowTasks((prev) =>
       prev
         .map((t) => (t.id === id ? { ...t, ...updates } : t))
         .filter((t) => t.target_date === selectedDate)
+        .sort((a, b) => a.position - b.position)
     );
     setThenTasks((prev) =>
       prev
         .map((t) => (t.id === id ? { ...t, ...updates } : t))
         .filter((t) => t.target_date === null)
+        .sort((a, b) => b.position - a.position)
     );
 
     try {
@@ -134,13 +140,15 @@ export function useTasks(selectedDate: string) {
       if (updated.target_date === selectedDate) {
         setNowTasks((prev) => {
           const exists = prev.find((t) => t.id === id);
-          return exists ? prev.map((t) => (t.id === id ? updated : t)) : [...prev, updated];
+          const merged = exists ? prev.map((t) => (t.id === id ? updated : t)) : [...prev, updated];
+          return merged.sort((a, b) => a.position - b.position);
         });
         setThenTasks((prev) => prev.filter((t) => t.id !== id));
       } else if (updated.target_date === null) {
         setThenTasks((prev) => {
           const exists = prev.find((t) => t.id === id);
-          return exists ? prev.map((t) => (t.id === id ? updated : t)) : [updated, ...prev];
+          const merged = exists ? prev.map((t) => (t.id === id ? updated : t)) : [updated, ...prev];
+          return merged.sort((a, b) => b.position - a.position);
         });
         setNowTasks((prev) => prev.filter((t) => t.id !== id));
       }
@@ -189,5 +197,83 @@ export function useTasks(selectedDate: string) {
     }
   };
 
-  return { nowTasks, thenTasks, taskCountByDate, loading, error, addTask, updateTask, deleteTask };
+  // Drag-and-drop reorder. newTargetDate가 명시되면 섹션 이동도 함께 처리.
+  const reorderTask = async (
+    id: string,
+    newPosition: number,
+    newTargetDate?: string | null
+  ) => {
+    const prevNow = nowTasks;
+    const prevThen = thenTasks;
+    const prevCountByDate = taskCountByDate;
+
+    const existing = [...nowTasks, ...thenTasks].find((t) => t.id === id);
+    if (!existing) return;
+
+    const oldDate = existing.target_date;
+    const targetDate = newTargetDate !== undefined ? newTargetDate : oldDate;
+    const sectionChanged = newTargetDate !== undefined && oldDate !== newTargetDate;
+
+    const optimistic: Task = { ...existing, position: newPosition, target_date: targetDate ?? null };
+
+    setNowTasks((prev) => {
+      const without = prev.filter((t) => t.id !== id);
+      if (optimistic.target_date === selectedDate) {
+        return [...without, optimistic].sort((a, b) => a.position - b.position);
+      }
+      return without;
+    });
+    setThenTasks((prev) => {
+      const without = prev.filter((t) => t.id !== id);
+      if (optimistic.target_date === null) {
+        return [...without, optimistic].sort((a, b) => b.position - a.position);
+      }
+      return without;
+    });
+
+    if (sectionChanged) {
+      setTaskCountByDate((prev) => {
+        const next = { ...prev };
+        if (oldDate) {
+          const count = (next[oldDate] ?? 0) - 1;
+          if (count <= 0) delete next[oldDate];
+          else next[oldDate] = count;
+        }
+        if (targetDate) {
+          next[targetDate] = (next[targetDate] ?? 0) + 1;
+        }
+        return next;
+      });
+    }
+
+    try {
+      const updates: UpdateTask = { position: newPosition };
+      if (sectionChanged) updates.target_date = targetDate ?? null;
+
+      const { error: updateError } = await supabase
+        .from('tasks')
+        .update(updates)
+        .eq('id', id);
+
+      if (updateError) throw updateError;
+    } catch (err) {
+      console.error('Failed to reorder task:', err);
+      setError('순서 변경에 실패했어요.');
+      setNowTasks(prevNow);
+      setThenTasks(prevThen);
+      setTaskCountByDate(prevCountByDate);
+    }
+  };
+
+  return {
+    nowTasks,
+    thenTasks,
+    taskCountByDate,
+    loading,
+    error,
+    addTask,
+    updateTask,
+    deleteTask,
+    reorderTask,
+  };
 }

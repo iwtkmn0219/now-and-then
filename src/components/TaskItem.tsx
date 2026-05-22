@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import type { Task, UpdateTask } from '@/types/task';
 import ContextMenu, { type ContextMenuItem } from './ContextMenu';
 
@@ -13,6 +15,17 @@ interface TaskItemProps {
 
 export default function TaskItem({ task, onUpdate, onDelete, showDatePicker = false }: TaskItemProps) {
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
+
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: task.id,
+    data: { section: showDatePicker ? 'then' : 'now', task },
+  });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+  };
 
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -30,7 +43,11 @@ export default function TaskItem({ task, onUpdate, onDelete, showDatePicker = fa
 
   return (
     <li
-      className="flex items-center gap-3 py-2 border-b border-gray-300 last:border-0 cursor-pointer"
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="flex items-center gap-3 py-2 border-b border-gray-300 last:border-0 cursor-grab active:cursor-grabbing touch-none bg-[#F5F0E8]"
       onContextMenu={handleContextMenu}
     >
       {menu && (
@@ -40,6 +57,7 @@ export default function TaskItem({ task, onUpdate, onDelete, showDatePicker = fa
         type="button"
         role="checkbox"
         aria-checked={task.is_completed}
+        onPointerDown={(e) => e.stopPropagation()}
         onClick={() => onUpdate(task.id, { is_completed: !task.is_completed })}
         className={`w-4 h-4 flex-shrink-0 border cursor-pointer flex items-center justify-center transition-colors ${
           showDatePicker
@@ -64,8 +82,6 @@ export default function TaskItem({ task, onUpdate, onDelete, showDatePicker = fa
       >
         {task.title}
       </span>
-
-
     </li>
   );
 }
