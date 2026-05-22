@@ -55,7 +55,7 @@ export default function Calendar({ selectedDate, onChange, taskCountByDate = {} 
   const startPad = getDay(startOfMonth(viewMonth));
 
   return (
-    <div className="font-mono select-none">
+    <div className="h-full font-mono select-none flex flex-col">
       {/* Month heading */}
       <div className="mb-4">
         <p className="text-4xl font-bold tracking-tight text-[#1A1A1A]">
@@ -103,7 +103,10 @@ export default function Calendar({ selectedDate, onChange, taskCountByDate = {} 
       </div>
 
       {/* Date grid */}
-      <div className="grid grid-cols-7 gap-y-1">
+      <div
+        className="flex-1 min-h-0 grid grid-cols-7"
+        style={{ gridAutoRows: '1fr' }}
+      >
         {Array.from({ length: startPad }).map((_, i) => (
           <div key={`pad-${i}`} />
         ))}
@@ -118,7 +121,7 @@ export default function Calendar({ selectedDate, onChange, taskCountByDate = {} 
               key={dateStr}
               onClick={() => onChange(dateStr)}
               className={`
-                aspect-square relative flex items-center justify-center text-sm transition-colors cursor-pointer
+                w-full h-full relative flex items-center justify-center text-sm transition-colors cursor-pointer
                 ${isSelected
                   ? 'bg-[#1A1A1A] text-[#F5F0E8]'
                   : today

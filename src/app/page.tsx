@@ -108,7 +108,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F0E8] font-mono flex flex-col">
+    <div className="h-screen bg-[#F5F0E8] font-mono flex flex-col overflow-hidden">
 
       {/* Header */}
       <header className="px-10 py-5 border-b border-[#1A1A1A]/20 flex items-baseline gap-4">
@@ -128,13 +128,17 @@ export default function Home() {
         <div className="flex flex-1 divide-x divide-[#1A1A1A]/20 overflow-hidden">
 
           {/* Left: Calendar */}
-          <section className="w-[38%] p-10 overflow-y-auto">
+          <section className="flex-1 p-10 flex flex-col overflow-hidden">
             <p className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-8">Calendar</p>
-            <Calendar selectedDate={selectedDate} onChange={setSelectedDate} taskCountByDate={taskCountByDate} />
+            <div className="flex-1 min-h-0 flex items-start">
+              <div className="h-full aspect-square max-w-full">
+                <Calendar selectedDate={selectedDate} onChange={setSelectedDate} taskCountByDate={taskCountByDate} />
+              </div>
+            </div>
           </section>
 
           {/* Center: Now */}
-          <section className="flex-1 p-10 overflow-y-auto">
+          <section className="w-[27%] p-10 overflow-y-auto">
             <div className="mb-8">
               <h2 className="text-xs uppercase tracking-widest text-[#1A1A1A] font-bold">Now</h2>
               <p className="text-xs text-gray-600 mt-1">{formattedDate}</p>
@@ -155,7 +159,7 @@ export default function Home() {
           </section>
 
           {/* Right: Then */}
-          <section className="flex-1 p-10 overflow-y-auto">
+          <section className="w-[27%] p-10 overflow-y-auto">
             <div className="mb-8">
               <h2 className="text-xs uppercase tracking-widest text-[#6B7280] font-bold">Then</h2>
               <p className="text-xs text-gray-600 mt-1">날짜가 정해지지 않은 아이디어</p>
