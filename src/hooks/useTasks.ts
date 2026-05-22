@@ -68,6 +68,13 @@ export function useTasks(selectedDate: string) {
       } else if (task.target_date === null) {
         setThenTasks((prev) => [task, ...prev]);
       }
+
+      if (task.target_date) {
+        setTaskCountByDate((prev) => ({
+          ...prev,
+          [task.target_date!]: (prev[task.target_date!] ?? 0) + 1,
+        }));
+      }
     } catch (err) {
       console.error('Failed to add task:', err);
       setError('할 일 추가에 실패했어요.');
@@ -77,6 +84,29 @@ export function useTasks(selectedDate: string) {
   const updateTask = async (id: string, updates: UpdateTask) => {
     const prevNow = nowTasks;
     const prevThen = thenTasks;
+    const prevCountByDate = taskCountByDate;
+
+    // target_date 변경 시 taskCountByDate 즉시 반영
+    if ('target_date' in updates) {
+      const existing = [...nowTasks, ...thenTasks].find((t) => t.id === id);
+      const oldDate = existing?.target_date ?? null;
+      const newDate = updates.target_date ?? null;
+
+      if (oldDate !== newDate) {
+        setTaskCountByDate((prev) => {
+          const next = { ...prev };
+          if (oldDate) {
+            const count = (next[oldDate] ?? 0) - 1;
+            if (count <= 0) delete next[oldDate];
+            else next[oldDate] = count;
+          }
+          if (newDate) {
+            next[newDate] = (next[newDate] ?? 0) + 1;
+          }
+          return next;
+        });
+      }
+    }
 
     // Optimistic update
     setNowTasks((prev) =>
@@ -119,15 +149,29 @@ export function useTasks(selectedDate: string) {
       setError('할 일 수정에 실패했어요.');
       setNowTasks(prevNow);
       setThenTasks(prevThen);
+      setTaskCountByDate(prevCountByDate);
     }
   };
 
   const deleteTask = async (id: string) => {
     const prevNow = nowTasks;
     const prevThen = thenTasks;
+    const prevCountByDate = taskCountByDate;
+
+    const existing = [...nowTasks, ...thenTasks].find((t) => t.id === id);
 
     setNowTasks((prev) => prev.filter((t) => t.id !== id));
     setThenTasks((prev) => prev.filter((t) => t.id !== id));
+
+    if (existing?.target_date) {
+      setTaskCountByDate((prev) => {
+        const next = { ...prev };
+        const count = (next[existing.target_date!] ?? 0) - 1;
+        if (count <= 0) delete next[existing.target_date!];
+        else next[existing.target_date!] = count;
+        return next;
+      });
+    }
 
     try {
       const { error: deleteError } = await supabase
@@ -141,6 +185,7 @@ export function useTasks(selectedDate: string) {
       setError('할 일 삭제에 실패했어요.');
       setNowTasks(prevNow);
       setThenTasks(prevThen);
+      setTaskCountByDate(prevCountByDate);
     }
   };
 
