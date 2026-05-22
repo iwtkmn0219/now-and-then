@@ -25,7 +25,7 @@ export default function TaskInput({ onAdd, placeholder = '할 일을 입력하�
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = value.trim();
-    if (!trimmed) return;
+    if (!trimmed) { close(); return; }
     onAdd(trimmed);
     setValue('');
     inputRef.current?.focus();
