@@ -23,12 +23,27 @@ export default function TaskItem({ task, onUpdate, onDelete, showDatePicker = fa
 
   return (
     <li className="flex items-center gap-3 py-2 group border-b border-gray-300 last:border-0">
-      <input
-        type="checkbox"
-        checked={task.is_completed}
-        onChange={(e) => onUpdate(task.id, { is_completed: e.target.checked })}
-        className="w-4 h-4 accent-[#1A1A1A] cursor-pointer flex-shrink-0"
-      />
+      <button
+        type="button"
+        role="checkbox"
+        aria-checked={task.is_completed}
+        onClick={() => onUpdate(task.id, { is_completed: !task.is_completed })}
+        className={`w-4 h-4 flex-shrink-0 border cursor-pointer flex items-center justify-center transition-colors ${
+          showDatePicker
+            ? task.is_completed
+              ? 'bg-[#6B7280] border-[#6B7280]'
+              : 'border-[#6B7280] bg-transparent hover:bg-[#6B7280]/10'
+            : task.is_completed
+              ? 'bg-[#1A1A1A] border-[#1A1A1A]'
+              : 'border-[#1A1A1A] bg-transparent hover:bg-[#1A1A1A]/10'
+        }`}
+      >
+        {task.is_completed && (
+          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+            <path d="M1 4L3.5 6.5L9 1" stroke="#F5F0E8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
+      </button>
       <span
         className={`flex-1 font-mono text-sm ${
           task.is_completed ? 'line-through text-gray-500' : 'text-[#1A1A1A]'
