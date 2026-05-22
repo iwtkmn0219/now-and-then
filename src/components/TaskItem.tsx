@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { Task, UpdateTask } from '@/types/task';
@@ -15,6 +15,26 @@ interface TaskItemProps {
 
 export default function TaskItem({ task, onUpdate, onDelete, showDatePicker = false }: TaskItemProps) {
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(task.title);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const startEdit = () => {
+    setEditValue(task.title);
+    setIsEditing(true);
+    setTimeout(() => inputRef.current?.focus(), 0);
+  };
+
+  const commitEdit = () => {
+    const trimmed = editValue.trim();
+    if (trimmed && trimmed !== task.title) onUpdate(task.id, { title: trimmed });
+    setIsEditing(false);
+  };
+
+  const cancelEdit = () => {
+    setEditValue(task.title);
+    setIsEditing(false);
+  };
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id,
@@ -33,6 +53,7 @@ export default function TaskItem({ task, onUpdate, onDelete, showDatePicker = fa
   };
 
   const menuItems: ContextMenuItem[] = [
+    { label: '수정', onClick: startEdit },
     {
       label: showDatePicker ? '날짜 지정' : '날짜 변경',
       type: 'date-picker',
@@ -46,8 +67,10 @@ export default function TaskItem({ task, onUpdate, onDelete, showDatePicker = fa
       ref={setNodeRef}
       style={style}
       {...attributes}
-      {...listeners}
-      className="group relative flex items-center gap-3 py-3 border-b border-[#1A1A1A]/10 last:border-0 cursor-grab active:cursor-grabbing touch-none bg-[#F5F0E8]"
+      {...(isEditing ? {} : listeners)}
+      className={`group relative flex items-center gap-3 py-3 border-b border-[#1A1A1A]/10 last:border-0 touch-none bg-[#F5F0E8] ${
+        isEditing ? 'cursor-text' : 'cursor-grab active:cursor-grabbing'
+      }`}
       onContextMenu={handleContextMenu}
     >
       {menu && (
@@ -83,13 +106,30 @@ export default function TaskItem({ task, onUpdate, onDelete, showDatePicker = fa
           </svg>
         )}
       </button>
-      <span
-        className={`flex-1 font-mono text-sm ${
-          task.is_completed ? 'line-through text-[#1A1A1A]/30' : 'text-[#1A1A1A]'
-        }`}
-      >
-        {task.title}
-      </span>
+      {isEditing ? (
+        <input
+          ref={inputRef}
+          type="text"
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          onBlur={commitEdit}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') { e.preventDefault(); commitEdit(); }
+            if (e.key === 'Escape') cancelEdit();
+          }}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="flex-1 font-mono text-sm bg-transparent border-b border-[#1A1A1A] focus:outline-none text-[#1A1A1A]"
+        />
+      ) : (
+        <span
+          onDoubleClick={startEdit}
+          className={`flex-1 font-mono text-sm ${
+            task.is_completed ? 'line-through text-[#1A1A1A]/30' : 'text-[#1A1A1A]'
+          }`}
+        >
+          {task.title}
+        </span>
+      )}
     </li>
   );
 }
