@@ -49,7 +49,7 @@ export default function TaskInput({ onAdd, placeholder = '할 일을 입력하�
             onBlur={handleBlur}
             onKeyDown={(e) => e.key === 'Escape' && close()}
             placeholder={placeholder}
-            className="w-full font-mono text-sm bg-transparent border-b border-gray-400 focus:border-[#1A1A1A] focus:outline-none py-1 text-[#1A1A1A] placeholder:text-gray-500"
+            className="w-full font-mono text-sm bg-transparent border-b border-[#1A1A1A]/20 focus:border-[#1A1A1A] focus:outline-none py-1 text-[#1A1A1A] placeholder:text-[#1A1A1A]/30 transition-colors"
           />
         </form>
       </div>

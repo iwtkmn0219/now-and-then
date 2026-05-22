@@ -111,9 +111,9 @@ export default function Home() {
     <div className="h-screen bg-[#F5F0E8] font-mono flex flex-col overflow-hidden">
 
       {/* Header */}
-      <header className="px-10 py-5 border-b border-[#1A1A1A]/20 flex items-baseline gap-4">
-        <h1 className="text-xl font-bold tracking-tight text-[#1A1A1A]">Now & Then</h1>
-        <p className="text-xs text-gray-400 uppercase tracking-widest">Task Manager</p>
+      <header className="px-10 py-4 border-b border-[#1A1A1A]/15 flex items-baseline gap-4">
+        <h1 className="text-base font-bold tracking-tight text-[#1A1A1A]">Now & Then</h1>
+        <p className="text-[10px] text-[#1A1A1A]/30 uppercase tracking-widest">Task Manager</p>
       </header>
 
       {/* Error */}
@@ -129,7 +129,7 @@ export default function Home() {
 
           {/* Left: Calendar */}
           <section className="flex-1 p-10 flex flex-col overflow-hidden">
-            <p className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-8">Calendar</p>
+            <p className="text-[10px] uppercase tracking-widest text-[#1A1A1A]/30 font-bold mb-6">Calendar</p>
             <div className="flex-1 min-h-0 flex items-start">
               <div className="h-full aspect-square max-w-full">
                 <Calendar selectedDate={selectedDate} onChange={setSelectedDate} taskCountByDate={taskCountByDate} />
@@ -139,12 +139,12 @@ export default function Home() {
 
           {/* Center: Now */}
           <section className="w-[27%] p-10 overflow-y-auto themed-scroll">
-            <div className="mb-8">
+            <div className="mb-6 pb-4 border-b border-[#1A1A1A]/10">
               <h2 className="text-xs uppercase tracking-widest text-[#1A1A1A] font-bold">Now</h2>
-              <p className="text-xs text-gray-600 mt-1">{formattedDate}</p>
+              <p className="text-xs text-[#1A1A1A]/40 mt-1">{formattedDate}</p>
             </div>
             {loading ? (
-              <p className="text-sm text-gray-600">불러오는 중...</p>
+              <p className="text-sm text-[#1A1A1A]/40">불러오는 중...</p>
             ) : (
               <TaskList
                 tasks={nowTasks}
@@ -160,12 +160,12 @@ export default function Home() {
 
           {/* Right: Then */}
           <section className="w-[27%] p-10 overflow-y-auto themed-scroll">
-            <div className="mb-8">
+            <div className="mb-6 pb-4 border-b border-[#1A1A1A]/10">
               <h2 className="text-xs uppercase tracking-widest text-[#6B7280] font-bold">Then</h2>
-              <p className="text-xs text-gray-600 mt-1">날짜가 정해지지 않은 아이디어</p>
+              <p className="text-xs text-[#1A1A1A]/40 mt-1">날짜가 정해지지 않은 아이디어</p>
             </div>
             {loading ? (
-              <p className="text-sm text-gray-600">불러오는 중...</p>
+              <p className="text-sm text-[#1A1A1A]/40">불러오는 중...</p>
             ) : (
               <TaskList
                 tasks={thenTasks}

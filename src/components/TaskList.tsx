@@ -41,8 +41,8 @@ export default function TaskList({
     <div ref={setNodeRef}>
       <SortableContext items={allIds} strategy={verticalListSortingStrategy}>
         {tasks.length === 0 ? (
-          <div className="min-h-[80px]">
-            <p className="font-mono text-sm text-gray-600 py-4">{emptyMessage}</p>
+          <div>
+            <p className="font-mono text-sm text-[#1A1A1A]/40 py-4 leading-relaxed">{emptyMessage}</p>
           </div>
         ) : (
           activeTasks.length > 0 && (
@@ -62,10 +62,10 @@ export default function TaskList({
         <TaskInput onAdd={onAdd} placeholder={inputPlaceholder} />
         {completedTasks.length > 0 && (
           <>
-            <div className="flex items-center gap-2 my-3">
-              <div className="flex-1 border-t border-gray-300" />
-              <span className="font-mono text-xs text-gray-400">완료 {completedTasks.length}</span>
-              <div className="flex-1 border-t border-gray-300" />
+            <div className="flex items-center gap-3 my-4">
+              <div className="flex-1 border-t border-[#1A1A1A]/10" />
+              <span className="font-mono text-[10px] tracking-widest uppercase text-[#1A1A1A]/30">완료 {completedTasks.length}</span>
+              <div className="flex-1 border-t border-[#1A1A1A]/10" />
             </div>
             <ul>
               {completedTasks.map((task) => (

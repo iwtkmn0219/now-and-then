@@ -47,12 +47,20 @@ export default function TaskItem({ task, onUpdate, onDelete, showDatePicker = fa
       style={style}
       {...attributes}
       {...listeners}
-      className="flex items-center gap-3 py-2 border-b border-gray-300 last:border-0 cursor-grab active:cursor-grabbing touch-none bg-[#F5F0E8]"
+      className="group relative flex items-center gap-3 py-3 border-b border-[#1A1A1A]/10 last:border-0 cursor-grab active:cursor-grabbing touch-none bg-[#F5F0E8]"
       onContextMenu={handleContextMenu}
     >
       {menu && (
         <ContextMenu x={menu.x} y={menu.y} items={menuItems} onClose={() => setMenu(null)} />
       )}
+
+      {/* Drag handle — absolute so it doesn't shift content right */}
+      <span className="absolute -left-4 flex flex-col gap-[3px] opacity-0 group-hover:opacity-25 transition-opacity">
+        <span className="w-3 h-px bg-[#1A1A1A]" />
+        <span className="w-3 h-px bg-[#1A1A1A]" />
+        <span className="w-3 h-px bg-[#1A1A1A]" />
+      </span>
+
       <button
         type="button"
         role="checkbox"
@@ -77,7 +85,7 @@ export default function TaskItem({ task, onUpdate, onDelete, showDatePicker = fa
       </button>
       <span
         className={`flex-1 font-mono text-sm ${
-          task.is_completed ? 'line-through text-gray-500' : 'text-[#1A1A1A]'
+          task.is_completed ? 'line-through text-[#1A1A1A]/30' : 'text-[#1A1A1A]'
         }`}
       >
         {task.title}
