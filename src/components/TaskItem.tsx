@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { Task, UpdateTask } from '@/types/task';
+import ContextMenu, { type ContextMenuItem } from './ContextMenu';
 
 interface TaskItemProps {
   task: Task;
@@ -11,18 +12,30 @@ interface TaskItemProps {
 }
 
 export default function TaskItem({ task, onUpdate, onDelete, showDatePicker = false }: TaskItemProps) {
-  const [isPickingDate, setIsPickingDate] = useState(false);
+  const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
 
-  const handleDateSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const date = e.target.value;
-    if (date) {
-      onUpdate(task.id, { target_date: date });
-      setIsPickingDate(false);
-    }
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setMenu({ x: e.clientX, y: e.clientY });
   };
 
+  const menuItems: ContextMenuItem[] = [
+    {
+      label: showDatePicker ? '날짜 지정' : '날짜 변경',
+      type: 'date-picker',
+      onDateSelect: (date) => onUpdate(task.id, { target_date: date }),
+    },
+    { label: '삭제', onClick: () => onDelete(task.id), danger: true },
+  ];
+
   return (
-    <li className="flex items-center gap-3 py-2 group border-b border-gray-300 last:border-0">
+    <li
+      className="flex items-center gap-3 py-2 border-b border-gray-300 last:border-0 cursor-pointer"
+      onContextMenu={handleContextMenu}
+    >
+      {menu && (
+        <ContextMenu x={menu.x} y={menu.y} items={menuItems} onClose={() => setMenu(null)} />
+      )}
       <button
         type="button"
         role="checkbox"
@@ -52,33 +65,7 @@ export default function TaskItem({ task, onUpdate, onDelete, showDatePicker = fa
         {task.title}
       </span>
 
-      {showDatePicker && (
-        <div className="flex items-center gap-1">
-          {isPickingDate ? (
-            <input
-              type="date"
-              autoFocus
-              onChange={handleDateSelect}
-              onBlur={() => setIsPickingDate(false)}
-              className="font-mono text-xs bg-transparent border-b border-gray-500 focus:outline-none"
-            />
-          ) : (
-            <button
-              onClick={() => setIsPickingDate(true)}
-              className="font-mono text-xs text-gray-600 hover:text-[#1A1A1A] opacity-0 group-hover:opacity-100 transition-opacity border border-gray-400 hover:border-[#1A1A1A] px-2 py-0.5 cursor-pointer"
-            >
-              날짜 지정
-            </button>
-          )}
-        </div>
-      )}
 
-      <button
-        onClick={() => onDelete(task.id)}
-        className="font-mono text-xs text-gray-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity ml-1 cursor-pointer"
-      >
-        ✕
-      </button>
     </li>
   );
 }
