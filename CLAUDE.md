@@ -150,7 +150,41 @@ Then 목록에서 제거되고 Now 섹션으로 이동한다.
 
 ---
 
-## 8. AI 에이전트 코딩 컨벤션 규칙 (Coding Guidelines)
+## 8. 컬러 팔레트 (Color Palette)
+
+프로젝트에서 사용하는 모든 색상을 아래에 정리한다. 새로운 색상을 임의로 추가하지 말고 이 팔레트 안에서 조합하여 사용할 것.
+
+### 브랜드 컬러 (HEX)
+
+| 변수명(별칭) | HEX | 용도 |
+|---|---|---|
+| cream | `#F5F0E8` | 전체 페이지 배경 |
+| deep-black | `#1A1A1A` | Now 섹션 강조, 주 텍스트, 버튼 배경, 테두리 |
+| deep-black-hover | `#3a3a3a` | 딥 블랙 버튼 hover 상태 |
+| mid-gray | `#6B7280` | Then 섹션 강조 (Tailwind `gray-500`과 동일) |
+
+### Tailwind 그레이 스케일 사용 매핑
+
+| 클래스 | 용도 |
+|---|---|
+| `gray-300` | 태스크 아이템 구분선 (`border-gray-300`) |
+| `gray-400` | 입력 필드 테두리, 플레이스홀더, 캘린더 요일 헤더, 비활성 버튼/화살표 |
+| `gray-500` | 완료된 태스크 텍스트 (`line-through`), DatePicker 레이블 |
+| `gray-600` | 날짜 부제목, 로딩 텍스트, 빈 상태 메시지, 날짜 지정 버튼 기본 색 |
+
+### 시맨틱 컬러
+
+| 용도 | 적용 색상 |
+|---|---|
+| 삭제 버튼 hover | `text-red-500` |
+| 선택된 캘린더 날짜 | `bg-[#1A1A1A] text-[#F5F0E8]` |
+| 오늘 날짜 (캘린더) | `border border-[#1A1A1A] text-[#1A1A1A]` |
+| 비활성 캘린더 날짜 | `text-gray-300 cursor-default` |
+| 투명도 분리선 | `border-[#1A1A1A]/20`, `divide-[#1A1A1A]/20` |
+
+---
+
+## 9. AI 에이전트 코딩 컨벤션 규칙 (Coding Guidelines)
 
 - **TypeScript:** 모든 컴포넌트의 Props, State 및 Supabase 응답 객체에 대해 엄격한 타입(`Interface` / `Type`)을 정의할 것.
 - **컴포넌트 분리:** 데이터 통신 로직과 UI 렌더링을 분리하여 작성할 것 (`useTasks` Custom Hook 활용).
